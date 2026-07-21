@@ -8,12 +8,12 @@
   <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
   
   <style>
-    /* Interface 2D flutuante para upload */
+    /* Interface 2D flutuante para upload (Desktop) */
     #upload-container {
       position: absolute;
       top: 20px;
       left: 20px;
-      z-index: 9999; /* Garante que fique acima do canvas 3D */
+      z-index: 9999; 
       background: rgba(255, 255, 255, 0.95);
       padding: 20px;
       border-radius: 10px;
@@ -25,7 +25,7 @@
     h1 {
       font-size: 16px;
       margin: 0 0 5px 0;
-      color: #0054a6; /* Azul SENAI */
+      color: #0054a6; 
     }
     
     p {
@@ -39,9 +39,42 @@
       font-size: 12px;
     }
 
-    /* Ajuste para o botão nativo de entrar em VR do A-Frame não ficar sob a interface */
+    /* Garante que o botão do A-Frame fique acima de tudo */
     .a-enter-vr {
       z-index: 10000 !important;
+    }
+
+    /* ==============================================
+       AJUSTES EXCLUSIVOS PARA MOBILE (Telas celulares)
+       ============================================== */
+    @media (max-width: 768px) {
+      /* Move o botão de VR/Full Screen para o canto superior direito */
+      .a-enter-vr {
+        top: 20px !important;
+        bottom: auto !important;
+        right: 20px !important;
+      }
+
+      /* Compacta o container de upload para não ocupar a tela toda do celular */
+      #upload-container {
+        top: 20px;
+        left: 20px;
+        max-width: 180px;
+        padding: 12px;
+      }
+
+      h1 {
+        font-size: 13px;
+      }
+
+      p {
+        font-size: 10px;
+        margin: 0 0 8px 0;
+      }
+
+      input[type="file"] {
+        font-size: 10px;
+      }
     }
   </style>
 </head>
@@ -49,15 +82,16 @@
 
   <div id="upload-container">
     <h1>Laboratório VR Interativo</h1>
-    <p>Selecione um arquivo 3D nos formatos <strong>.glb</strong> ou <strong>.gltf</strong> gerado pelas outras turmas.</p>
+    <p>Selecione um arquivo 3D nos formatos <strong>.glb</strong> ou <strong>.gltf</strong>.</p>
     <input type="file" id="file-chooser" accept=".gltf,.glb">
   </div>
 
   <a-scene embedded style="width: 100vw; height: 100vh;">
-    
     <a-sky color="#cce6ff"></a-sky>
     <a-plane position="0 0 0" rotation="-90 0 0" width="50" height="50" color="#333" roughness="0.8"></a-plane>
-    <a-grid position="0 0.01 0" cell-size="1" color="#666"></a-grid> <a-light type="ambient" color="#ffffff" intensity="0.7"></a-light>
+    <a-grid position="0 0.01 0" cell-size="1" color="#666"></a-grid>
+
+    <a-light type="ambient" color="#ffffff" intensity="0.7"></a-light>
     <a-light type="directional" color="#ffffff" intensity="0.5" position="-1 4 2"></a-light>
 
     <a-entity id="render-target" position="0 1.2 -3" rotation="0 0 0"></a-entity>
@@ -65,47 +99,30 @@
     <a-entity camera look-controls position="0 1.6 0">
       <a-cursor color="#ffcc00" fuse="true" fuse-timeout="1500"></a-cursor>
     </a-entity>
-
   </a-scene>
 
   <script>
     document.getElementById('file-chooser').addEventListener('change', function(event) {
       const file = event.target.files[0];
-      
-      if (!file) {
-        return;
-      }
+      if (!file) return;
 
-      // PASSO 1: Cria um ponteiro/URL local seguro apontando para o arquivo na memória do dispositivo
       const blobURL = URL.createObjectURL(file);
-      
-      // PASSO 2: Captura o container onde colocaremos o objeto 3D
       const container = document.getElementById('render-target');
-      
-      // Limpa qualquer modelo carregado anteriormente para não encavalar
       container.innerHTML = '';
 
-      // PASSO 3: Cria dinamicamente a tag do modelo 3D do A-Frame
       const novoModelo = document.createElement('a-gltf-model');
-      
-      // Define a origem do modelo como a nossa URL temporária do arquivo
       novoModelo.setAttribute('src', blobURL);
-      
-      // Reseta a escala básica (1:1 no espaço real)
-      novoModelo.setAttribute('scale', '1 1 1');
+      novoModelo.setAttribute('scale', '1 1 1'); // Se o modelo ficar gigante, mude para '0.1 0.1 0.1'
 
-      // PASSO 4: Escuta o evento do A-Frame que avisa quando o modelo 3D terminou de ser processado
       novoModelo.addEventListener('model-loaded', () => {
-        console.log('Sucesso: O modelo 3D foi renderizado no ambiente virtual!');
+        console.log('Modelo carregado com sucesso!');
       });
 
-      // Trata possíveis erros de arquivos corrompidos ou formatos errados
       novoModelo.addEventListener('model-error', (err) => {
-        alert('Erro ao processar o arquivo 3D. Certifique-se de que é um .gltf ou .glb válido.');
+        alert('Erro ao processar o arquivo 3D.');
         console.error(err);
       });
 
-      // PASSO 5: Insere o elemento criado na árvore do DOM da cena 3D
       container.appendChild(novoModelo);
     });
   </script>
