@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-PT">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,12 +8,12 @@
   <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
   
   <style>
-    /* Interface 2D flutuante para upload (Desktop) */
+    /* Interface 2D de upload */
     #upload-container {
       position: absolute;
       top: 20px;
       left: 20px;
-      z-index: 9999; 
+      z-index: 9999;
       background: rgba(255, 255, 255, 0.95);
       padding: 20px;
       border-radius: 10px;
@@ -22,58 +22,44 @@
       max-width: 300px;
     }
     
-    h1 {
-      font-size: 16px;
-      margin: 0 0 5px 0;
-      color: #0054a6; 
-    }
-    
-    p {
-      font-size: 12px;
-      color: #555;
-      margin: 0 0 15px 0;
-    }
-
-    input[type="file"] {
-      width: 100%;
-      font-size: 12px;
-    }
-
-    /* Garante que o botão do A-Frame fique acima de tudo */
-    .a-enter-vr {
-      z-index: 10000 !important;
-    }
+    h1 { font-size: 16px; margin: 0 0 5px 0; color: #0054a6; }
+    p { font-size: 12px; color: #555; margin: 0 0 15px 0; }
+    input[type="file"] { width: 100%; font-size: 12px; }
 
     /* ==============================================
-       AJUSTES EXCLUSIVOS PARA MOBILE (Telas celulares)
+       O NOSSO PRÓPRIO BOTÃO VR (Canto Superior Direito)
        ============================================== */
-    @media (max-width: 768px) {
-      /* Move o botão de VR/Full Screen para o canto superior direito */
-      .a-enter-vr {
-        top: 20px !important;
-        bottom: auto !important;
-        right: 20px !important;
-      }
+    #meu-botao-vr {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 10000; /* Fica acima de tudo */
+      background-color: #333333;
+      color: white;
+      border: 2px solid white;
+      padding: 10px 15px;
+      border-radius: 5px;
+      font-family: sans-serif;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
 
-      /* Compacta o container de upload para não ocupar a tela toda do celular */
+    #meu-botao-vr:hover { background-color: #555555; }
+
+    /* Ajustes para o ecrã do telemóvel */
+    @media (max-width: 768px) {
       #upload-container {
-        top: 20px;
-        left: 20px;
         max-width: 180px;
         padding: 12px;
       }
-
-      h1 {
-        font-size: 13px;
-      }
-
-      p {
-        font-size: 10px;
-        margin: 0 0 8px 0;
-      }
-
-      input[type="file"] {
-        font-size: 10px;
+      h1 { font-size: 13px; }
+      p { font-size: 10px; margin: 0 0 8px 0; }
+      input[type="file"] { font-size: 10px; }
+      
+      #meu-botao-vr {
+        font-size: 12px;
+        padding: 8px 12px;
       }
     }
   </style>
@@ -81,12 +67,14 @@
 <body>
 
   <div id="upload-container">
-    <h1>Laboratório VR Interativo</h1>
-    <p>Selecione um arquivo 3D nos formatos <strong>.glb</strong> ou <strong>.gltf</strong>.</p>
+    <h1>Laboratório VR</h1>
+    <p>Selecione um ficheiro 3D (.glb ou .gltf).</p>
     <input type="file" id="file-chooser" accept=".gltf,.glb">
   </div>
 
-  <a-scene embedded style="width: 100vw; height: 100vh;">
+  <button id="meu-botao-vr">Entrar no VR</button>
+
+  <a-scene embedded style="width: 100vw; height: 100vh;" vr-mode-ui="enterVRButton: #meu-botao-vr">
     <a-sky color="#cce6ff"></a-sky>
     <a-plane position="0 0 0" rotation="-90 0 0" width="50" height="50" color="#333" roughness="0.8"></a-plane>
     <a-grid position="0 0.01 0" cell-size="1" color="#666"></a-grid>
@@ -112,15 +100,14 @@
 
       const novoModelo = document.createElement('a-gltf-model');
       novoModelo.setAttribute('src', blobURL);
-      novoModelo.setAttribute('scale', '1 1 1'); // Se o modelo ficar gigante, mude para '0.1 0.1 0.1'
+      novoModelo.setAttribute('scale', '1 1 1');
 
       novoModelo.addEventListener('model-loaded', () => {
         console.log('Modelo carregado com sucesso!');
       });
 
       novoModelo.addEventListener('model-error', (err) => {
-        alert('Erro ao processar o arquivo 3D.');
-        console.error(err);
+        alert('Erro ao processar o ficheiro 3D.');
       });
 
       container.appendChild(novoModelo);
